@@ -1,0 +1,9 @@
+---
+  - name: Copy files
+    copy:
+      src: ~/project/backend/dist
+      dest: ~/web/
+
+  - name: Start Server
+    shell: |
+      pm2 start ~/web/index.js -f
