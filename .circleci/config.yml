@@ -255,17 +255,18 @@ jobs:
 
   # smoke-test:
   #   docker:
-  #     # Lightweight Docker image 
+  #     - image: alpine
   #   steps:
   #     # Checkout code from git
   #     - run:
   #         name: Install dependencies
   #         command: |
-  #           # your code here
+  #           apk add --update curl
   #     - run:
   #         name: Get backend url
   #         command: |
-  #           # your code here
+  #           BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/backend_ip_${CIRCLE_WORKFLOW_ID})
+  #           curl https://${BACKEND_IP}:3030/api/status
   #     - run:
   #         name: Backend smoke test.
   #         command: |
