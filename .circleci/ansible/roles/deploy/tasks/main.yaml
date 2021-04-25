@@ -1,9 +1,9 @@
 ---
   - name: Copy files
     copy:
-      src: ~/project/backend/dist/
+      src: ~/project/backend/
       dest: ~/web/
 
   - name: Start Server
     shell: |
-      pm2 start ~/web/main.js -f
+      pm2 start ~/web/dist/main.js -f

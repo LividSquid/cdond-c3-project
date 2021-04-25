@@ -69,7 +69,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/backend/dist
+            - project/backend
 
   test-frontend:
     docker:
