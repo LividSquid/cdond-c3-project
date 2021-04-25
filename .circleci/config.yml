@@ -64,8 +64,12 @@ jobs:
              npm i
              npm run build
       - save_cache:
-          paths: [backend/node_modules, backend/dist]
+          paths: [backend/node_modules]
           key: backend-build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/dist
 
   test-frontend:
     docker:
@@ -153,9 +157,9 @@ jobs:
               echo ${BACKEND_IP} >> .circleci/ansible/inventory.txt
               curl -H "Content-Type: text/plain" -H "token: $MEMSTASH_TOKEN" -X PUT -d "${BACKEND_IP}" https://api.memstash.io/values/backend_ip_${CIRCLE_WORKFLOW_ID}
       - persist_to_workspace:
-          root: .
+          root: ~/
           paths:
-            - .circleci/ansible/inventory.txt
+            - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure          
 
   configure-infrastructure:
@@ -167,7 +171,7 @@ jobs:
           fingerprints:
             - 9d:87:4f:16:9b:57:54:1a:10:1b:3e:c3:26:80:07:21
       - attach_workspace:
-          at: .
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -175,7 +179,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cd .circleci/ansible
+            cd ~/project/.circleci/ansible
             ansible-playbook configure-server.yml -i inventory.txt
       # Here's where you will add some code to rollback on failure      
 
