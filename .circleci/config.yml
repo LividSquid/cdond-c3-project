@@ -64,7 +64,7 @@ jobs:
              npm i
              npm run build
       - save_cache:
-          paths: [backend/node_modules]
+          paths: [backend/node_modules, backend/dist]
           key: backend-build
 
   test-frontend:
@@ -107,6 +107,9 @@ jobs:
           command: |
             cd frontend
             npm audit fix --audit-level=critical --force
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
   scan-backend:
     docker:
@@ -120,6 +123,9 @@ jobs:
           command: |
             cd backend
             npm audit fix --audit-level=critical --force
+      - save_cache:
+          paths: [backend/node_modules, backend/dist]
+          key: backend-build
 
   deploy-infrastructure:
     docker:
@@ -213,6 +219,8 @@ jobs:
             BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/backend_ip_${CIRCLE_WORKFLOW_ID})
             export API_URL="https://${BACKEND_IP}:3030"
             echo "${API_URL}"
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Deploy frontend objects
           command: |
@@ -236,6 +244,8 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Deploy backend
           command: |
