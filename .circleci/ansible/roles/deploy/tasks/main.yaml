@@ -1,7 +1,7 @@
 ---
   - name: Copy files
     copy:
-      src: ~/project/backend/dist
+      src: ~/backend/dist
       dest: ~/web/
 
   - name: Start Server
