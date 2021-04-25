@@ -1,0 +1,19 @@
+---
+  - name: Update and upgrade apt packages
+    become: yes
+    apt: 
+      update_cache: yes
+      upgrade: yes
+      autoremove: yes
+
+  - name: Install nodejs
+    become: yes
+    apt:
+      name: [nodejs, npm]
+
+  - name: Install pm2
+    become: yes
+    npm:
+      name: pm2
+      global: yes
+      production: yes
