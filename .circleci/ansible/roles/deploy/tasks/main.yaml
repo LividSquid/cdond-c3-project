@@ -5,6 +5,6 @@
       dest: ~/
 
   - name: Start Server
-    chdir: ~/backend/dist
-    shell: |
-      pm2 start main.js -f
+    shell:
+      chdir: ~/backend/dist
+      cmd: pm2 start main.js -f
