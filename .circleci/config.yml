@@ -36,6 +36,7 @@ jobs:
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
@@ -53,6 +54,7 @@ jobs:
   build-backend:
     docker:
       - image: circleci/node:13.8.0
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
@@ -74,6 +76,7 @@ jobs:
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
@@ -88,6 +91,7 @@ jobs:
   test-backend:
     docker:
       - image: circleci/node:13.8.0
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
@@ -102,6 +106,7 @@ jobs:
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
@@ -115,6 +120,7 @@ jobs:
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
@@ -128,6 +134,7 @@ jobs:
   deploy-infrastructure:
     docker:
       - image: amazon/aws-cli
+    resource_class: small
     steps:
       - checkout
       - run: yum install -y tar gzip
@@ -165,6 +172,7 @@ jobs:
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
+    resource_class: large
     steps:
       - checkout
       - add_ssh_keys:
@@ -186,6 +194,7 @@ jobs:
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
+    resource_class: large
     steps:
       - checkout
       - run:
@@ -203,6 +212,7 @@ jobs:
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
+    resource_class: large
     steps:
       - checkout
       - run:
@@ -231,6 +241,7 @@ jobs:
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
+    resource_class: large
     steps:
       - checkout
       - add_ssh_keys:
