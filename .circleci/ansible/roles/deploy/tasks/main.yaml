@@ -2,8 +2,8 @@
   - name: Copy and unarchive backend
     unarchive:
       src: ~/project/backend.tar.gz
-      dest: ~/web/
+      dest: ~/
 
   - name: Start Server
     shell: |
-      pm2 start ~/web/dist/main.js -f
+      pm2 start ~/dist/main.js -f
