@@ -268,12 +268,9 @@ jobs:
           command: |
             apk add --update curl
       - run:
-          name: Get backend url
-          command: |
-            BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/backend_ip_${CIRCLE_WORKFLOW_ID})
-      - run:
           name: Backend smoke test.
           command: |
+            BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/backend_ip_${CIRCLE_WORKFLOW_ID})
             curl http://${BACKEND_IP}:3030/api/status
       - run:
           name: Frontend smoke test.
