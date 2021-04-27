@@ -6,7 +6,7 @@
 
   - name: Build
     shell:
-      chdir: ~/backend/dist
+      chdir: ~/backend
       cmd: |
         npm i
         npm run build
