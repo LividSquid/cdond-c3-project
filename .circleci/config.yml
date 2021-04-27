@@ -271,6 +271,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+          asdf
             cd ~/project/.circleci/ansible
             ansible-playbook deploy-backend.yml -i inventory.txt
       # Here's where you will add some code to rollback on failure
