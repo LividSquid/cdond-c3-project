@@ -1,3 +1,15 @@
+definitions:
+  docker: &default-docker
+    - image: python:3.7-alpine3.11
+  steps: 
+    - run: &default-dependencies
+        name: Install dependencies
+        command: |
+          apk add --update ansible npm tar gzip
+          pip3 install --upgrade pip
+          pip3 install awscli
+          aws --version
+  
 version: 2.1
 
 commands:
@@ -29,10 +41,10 @@ commands:
             
 jobs:
   build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -46,10 +58,10 @@ jobs:
           key: frontend-build
 
   build-backend:
-    docker:
-      - image: circleci/node:13.8.0
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -67,10 +79,10 @@ jobs:
             - project/backend
 
   test-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -81,10 +93,10 @@ jobs:
             npm run test
                 
   test-backend:
-    docker:
-      - image: circleci/node:13.8.0
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -95,10 +107,10 @@ jobs:
             npm run test
             
   scan-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -108,10 +120,10 @@ jobs:
             npm audit fix --audit-level=critical --force
 
   scan-backend:
-    docker:
-      - image: circleci/node:13.8.0
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -121,11 +133,10 @@ jobs:
             npm audit fix --audit-level=critical --force
 
   deploy-infrastructure:
-    docker:
-      - image: amazon/aws-cli
+    docker: *default-docker
     steps:
       - checkout
-      - run: yum install -y tar gzip
+      - run: *default-dependencies
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -159,22 +170,15 @@ jobs:
       - destroy-environment # on failure
 
   configure-infrastructure:
-    docker:
-      - image: python:3.7-alpine3.11
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - add_ssh_keys:
           fingerprints:
             - 9d:87:4f:16:9b:57:54:1a:10:1b:3e:c3:26:80:07:21
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-            pip3 install --upgrade pip
-            pip3 install awscli
-            aws --version
       - run:
           name: Configure server
           command: |
@@ -184,17 +188,10 @@ jobs:
       - destroy-environment # on failure
 
   run-migrations:
-    docker:
-      - image: amazon/aws-cli
-    resource_class: large
+    docker: *default-docker
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            yum install -y tar gzip
-            curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
-            yum install -y nodejs
+      - run: *default-dependencies
       - run:
           name: Run migrations
           command: |
@@ -210,18 +207,10 @@ jobs:
       - revert-migrations # on failure
 
   deploy-frontend:
-    docker:
-      - image: amazon/aws-cli
+    docker: *default-docker
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            amazon-linux-extras install -y epel
-            yum update -y
-            yum install -y tar gzip ansible
-            curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
-            yum install -y nodejs
+      - run: *default-dependencies
       - run:
           name: Get backend url
           command: |
@@ -243,19 +232,13 @@ jobs:
       - revert-migrations # on failure
                     
   deploy-backend:
-    docker:
-      - image: amazon/aws-cli
+    docker: *default-docker
     steps:
       - checkout
+      - run: *default-dependencies
       - add_ssh_keys:
           fingerprints:
             - 9d:87:4f:16:9b:57:54:1a:10:1b:3e:c3:26:80:07:21
-      - run:
-          name: Install dependencies
-          command: |
-            amazon-linux-extras install -y epel
-            yum update -y
-            yum install -y ansible tar gzip
       - attach_workspace:
           at: ~/
       - restore_cache:
@@ -275,14 +258,10 @@ jobs:
       - revert-migrations # on failure
 
   smoke-test:
-    docker:
-      - image: amazon/aws-cli
+    docker: *default-docker
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            yum install -y curl
+      - run: *default-dependencies
       - run:
           name: Backend smoke test.
           command: |
@@ -293,7 +272,7 @@ jobs:
           command: |
             BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
             URL="http://${BUCKET_NAME}.s3-website-us-east-1.amazonaws.com"
-            curl -s ${URL} | grep "Welcomee"
+            curl -s ${URL} | grep "Welcome"
             exit # Exits with the status of the previous command. Grep returns 0 if a match is found, 1 if not.
       # Here's where you will add some code to rollback on failure
       - destroy-environment # on failure
