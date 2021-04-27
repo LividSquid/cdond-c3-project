@@ -4,14 +4,7 @@
       src: ~/project/backend.tar.gz
       dest: ~/
 
-  - name: Build
-    shell:
-      chdir: ~/backend
-      cmd: |
-        npm i
-        npm run build
-
   - name: Start Server
     shell:
-      chdir: ~/backend
+      chdir: ~/backend/dist
       cmd: pm2 start npm -- run start
