@@ -275,7 +275,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"
             curl -s ${URL} | grep "Welcome"
             exit # Exits with the status of the previous command. Grep returns 0 if a match is found, 1 if not.
       # Here's where you will add some code to rollback on failure  
