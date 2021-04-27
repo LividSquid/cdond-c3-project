@@ -221,7 +221,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip
+            amazon-linux-extras install epel
+            yum update -y
+            yum install -y tar gzip ansible
             curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
             yum install -y nodejs
       - run:
@@ -254,6 +256,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            amazon-linux-extras install epel
+            yum update -y
             yum install -y ansible tar gzip
       - attach_workspace:
           at: ~/
