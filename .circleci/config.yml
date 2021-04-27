@@ -22,10 +22,10 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name << frontend-stack-name >> --query "Stacks[0].Outputs[?OutputKey==BucketName].OutputValue" --output text)
+            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name << parameters.frontend-stack-name >> --query "Stacks[0].Outputs[?OutputKey==BucketName].OutputValue" --output text)
             aws s3 rm --recursive "s3://${BUCKET_NAME}"
-            aws cloudformation delete-stack --stack-name "<< frontend-stack-name >>"
-            aws cloudformation delete-stack --stack-name "<< backend-stack-name >>"
+            aws cloudformation delete-stack --stack-name "<< parameters.frontend-stack-name >>"
+            aws cloudformation delete-stack --stack-name "<< parameters.backend-stack-name >>"
             exit 1
 
   # revert-migrations:
@@ -152,25 +152,25 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name "<< backend-stack-name >>" \
-              --parameter-overrides ID="<< cloudformation-id >>"
+              --stack-name "<< parameters.backend-stack-name >>" \
+              --parameter-overrides ID="<< parameters.cloudformation-id >>"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "<< frontend-stack-name >>" \
-              --parameter-overrides ID="<< cloudformation-id >>"
+              --stack-name "<< parameters.frontend-stack-name >>" \
+              --parameter-overrides ID="<< parameters.cloudformation-id >>"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:aws:cloudformation:stack-name,Values=<< backend-stack-name >>" \
+              --filters "Name=tag:aws:cloudformation:stack-name,Values=<< parameters.backend-stack-name >>" \
               --output text)
               echo ${BACKEND_IP} >> .circleci/ansible/inventory.txt
-              curl -H "Content-Type: text/plain" -H "token: $MEMSTASH_TOKEN" -X PUT -d "${BACKEND_IP}" https://api.memstash.io/values/<< backend-stack-name >>
+              curl -H "Content-Type: text/plain" -H "token: $MEMSTASH_TOKEN" -X PUT -d "${BACKEND_IP}" https://api.memstash.io/values/<< parameters.backend-stack-name >>
       - persist_to_workspace:
           root: ~/
           paths:
@@ -239,7 +239,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/<< backend-stack-name >>)
+            BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/<< parameters.backend-stack-name >>)
             export API_URL="https://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - restore_cache:
@@ -250,7 +250,7 @@ jobs:
             cd frontend
             npm i
             npm run build
-            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name << frontend-stack-name >> --query "Stacks[0].Outputs[?OutputKey==BucketName].OutputValue" --output text)
+            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name << parameters.frontend-stack-name >> --query "Stacks[0].Outputs[?OutputKey==BucketName].OutputValue" --output text)
             aws s3 sync ./dist s3://${BUCKET_NAME} --delete
       # Here's where you will add some code to rollback on failure
       - destroy-environment # on failure
@@ -296,12 +296,12 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/<< backend-stack-name >>)
+            BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/<< parameters.backend-stack-name >>)
             curl http://${BACKEND_IP}:3030/api/status
       - run:
           name: Frontend smoke test.
           command: |
-            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name << frontend-stack-name >> --query "Stacks[0].Outputs[?OutputKey==BucketName].OutputValue" --output text)
+            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name << parameters.frontend-stack-name >> --query "Stacks[0].Outputs[?OutputKey==BucketName].OutputValue" --output text)
             URL="http://${BUCKET_NAME}.s3-website-us-east-1.amazonaws.com"
             curl -s ${URL} | grep "Welcomee"
             exit # Exits with the status of the previous command. Grep returns 0 if a match is found, 1 if not.
