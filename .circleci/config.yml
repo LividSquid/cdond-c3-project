@@ -253,12 +253,12 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - 9d:87:4f:16:9b:57:54:1a:10:1b:3e:c3:26:80:07:21
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
             yum install -y ansible tar gzip
+      - attach_workspace:
+          at: ~/
       - restore_cache:
           keys: [backend-build]
       - run:
