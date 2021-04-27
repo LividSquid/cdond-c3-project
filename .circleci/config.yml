@@ -5,7 +5,7 @@ definitions:
     - run: &default-dependencies
         name: Install dependencies
         command: |
-          apk add --update ansible npm tar gzip
+          apk add --update ansible npm tar gzip curl
           pip3 install --upgrade pip
           pip3 install awscli
           aws --version
