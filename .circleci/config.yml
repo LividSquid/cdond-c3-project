@@ -181,6 +181,7 @@ jobs:
             unzip awscliv2.zip
             ./aws/install
             PATH=/usr/local/bin:$PATH
+            echo $PATH
             aws --version
       - run:
           name: Configure server
