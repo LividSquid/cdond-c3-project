@@ -1,7 +1,7 @@
 definitions:
   docker: &default-docker
     - image: python:3.7-alpine3.11
-  steps: 
+  steps:
     - run: &default-dependencies
         name: Install dependencies
         command: |
@@ -9,7 +9,7 @@ definitions:
           pip3 install --upgrade pip
           pip3 install awscli
           aws --version
-  
+
 version: 2.1
 
 commands:
@@ -42,7 +42,7 @@ commands:
             else
               echo "No migrations to revert. Exiting"
             fi
-            
+
 jobs:
   build-frontend:
     docker: *default-docker
@@ -71,9 +71,9 @@ jobs:
       - run:
           name: Back-end build
           command: |
-             cd backend
-             npm i
-             npm run build
+            cd backend
+            npm i
+            npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -95,7 +95,7 @@ jobs:
             cd frontend
             npm i
             npm run test
-                
+
   test-backend:
     docker: *default-docker
     steps:
@@ -109,7 +109,7 @@ jobs:
             cd backend
             npm i
             npm run test
-            
+
   scan-frontend:
     docker: *default-docker
     steps:
@@ -202,12 +202,14 @@ jobs:
             cd backend
             npm i
             npm run build
-            npm run migrations > output.txt
-      - run:
-          name: Send migration results to memstash
-          command: |
-            if grep -q "has been executed successfully" output.txt; then curl -H "Content-Type: text/plain" -H "token: $MEMSTASH_TOKEN" -X PUT -d "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; fi
-     # Here's where you will add some code to rollback on failure
+
+            npm run migrations:revert
+            # npm run migrations > output.txt
+      # - run:
+      #     name: Send migration results to memstash
+      #     command: |
+      #       if grep -q "has been executed successfully" output.txt; then curl -H "Content-Type: text/plain" -H "token: $MEMSTASH_TOKEN" -X PUT -d "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; fi
+      # Here's where you will add some code to rollback on failure
       - destroy-environment # on failure
       - revert-migrations # on failure
 
@@ -235,7 +237,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy-environment # on failure
       - revert-migrations # on failure
-                    
+
   deploy-backend:
     docker: *default-docker
     steps:
@@ -296,27 +298,26 @@ jobs:
   #         name: Update cloudfront distribution
   #         command: |
   #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  #     # Here's where you will add some code to rollback on failure
 
 cleanup:
-    docker:
-      # Docker image here
-    steps:
-      # Checkout code from git
-      - run:
-          name: Get old stack workflow id
-          command: |
+  docker:
+    # Docker image here
+  steps:
+    # Checkout code from git
+    - run:
+        name: Get old stack workflow id
+        command: |
+          # your code here
+          export OldWorkflowID="the id here"
+          export STACKS=[] #put the list of stacks here
+    - run:
+        name: Remove old stacks and files
+        command: |
+          if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+          then
             # your code here
-            export OldWorkflowID="the id here"
-            export STACKS=[] #put the list of stacks here
-      - run:
-          name: Remove old stacks and files
-          command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              # your code here
-            fi
-            
+          fi
 
 workflows:
   default:
@@ -332,7 +333,7 @@ workflows:
       # - scan-frontend:
       #     requires: [build-frontend]
       - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           requires: [build-frontend, build-backend]
           filters:
             branches:
@@ -341,12 +342,12 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
