@@ -203,6 +203,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            asfd
             cd backend
             npm i
             npm run migrations > output.txt
@@ -237,7 +238,6 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            asdf
             cd frontend
             npm i
             npm run build
