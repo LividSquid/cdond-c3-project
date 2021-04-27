@@ -179,10 +179,7 @@ jobs:
             apk add --update ansible curl unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            ./aws/install
-            export PATH=/usr/local/bin:$PATH
-            echo $PATH
-            aws --version
+            ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
       - run:
           name: Configure server
           command: |
