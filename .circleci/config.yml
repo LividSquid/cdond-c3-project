@@ -317,26 +317,19 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            echo "export OldWorkflowID=$(curl -H \"token: $MEMSTASH_TOKEN\" https://api.memstash.io/values/oldworkflowid)" >> $BASH_ENV
-            echo "export STACKS=($(aws cloudformation list-stacks --query \"StackSummaries[*].StackName\" \
+            echo "export OldWorkflowID=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/oldworkflowid)" >> $BASH_ENV
+            echo "export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text))" >> $BASH_ENV
             echo "Run 1 OldWorkflowID=${OldWorkflowID}"
             echo "Run 1 Stacks: ${STACKS[@]}"
       - run:
           name: Remove old stacks and files
           command: |
-            echo "testing AWS CLI"
-            aws s3 ls
-            echo "OldWorkflowID=${OldWorkflowID}"
-            echo "Stacks: ${STACKS[@]}"
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              echo "backend destroyed"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              echo "udapeople-${OldWorkflowID} emptied"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-              echo "frontend destroyed"
             fi
 
 workflows:
