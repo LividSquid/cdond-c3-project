@@ -53,6 +53,9 @@ jobs:
       - run:
           name: Build front-end
           command: |
+            ls -al
+            ls -al ./*
+            exit 1
             cd frontend
             npm i
             npm run build
