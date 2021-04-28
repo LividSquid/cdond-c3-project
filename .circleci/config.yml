@@ -325,6 +325,8 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
+            echo "testing AWS CLI"
+            aws s3 ls
             echo "OldWorkflowID=${OldWorkflowID}"
             echo "Stacks: ${STACKS[@]}"
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
