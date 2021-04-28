@@ -7,7 +7,7 @@
   - name: Run build
     shell:
       chdir: ~/backend
-      cmd: node run build
+      cmd: npm run build
 
   - name: Start Server
     shell:
