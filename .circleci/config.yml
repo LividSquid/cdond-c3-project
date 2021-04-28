@@ -53,6 +53,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
+            pwd
             ls -al
             ls -al ./*
             exit 1
