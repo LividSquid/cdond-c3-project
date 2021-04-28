@@ -332,7 +332,7 @@ workflows:
           requires: [build-frontend, build-backend]
           filters:
             branches:
-              only: [7-rollback-phase]
+              only: [8-promotion-phase]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
