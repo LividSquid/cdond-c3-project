@@ -20,8 +20,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
-            aws s3 rm --recursive "s3://${BUCKET_NAME}"
+            aws s3 rm --recursive "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -297,21 +296,25 @@ jobs:
 
 cleanup:
   docker:
-    # Docker image here
+    - image: amazon/aws-cli
   steps:
-    # Checkout code from git
+    - checkout
     - run:
         name: Get old stack workflow id
         command: |
-          # your code here
-          export OldWorkflowID="the id here"
-          export STACKS=[] #put the list of stacks here
+          export OldWorkflowID=$(aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text)
+          export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+            --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
     - run:
         name: Remove old stacks and files
         command: |
           if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
           then
-            # your code here
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+            aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
           fi
 
 workflows:
@@ -332,7 +335,7 @@ workflows:
           requires: [build-frontend, build-backend]
           filters:
             branches:
-              only: [8-promotion-phase]
+              only: [9-cleanup-phase]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
@@ -345,5 +348,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
