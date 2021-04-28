@@ -317,9 +317,9 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            export OldWorkflowID=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/oldworkflowid)
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo "export OldWorkflowID=$(curl -H \"token: $MEMSTASH_TOKEN\" https://api.memstash.io/values/oldworkflowid)" >> $BASH_ENV
+            echo "export STACKS=($(aws cloudformation list-stacks --query \"StackSummaries[*].StackName\" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))" >> $BASH_ENV
             echo "Run 1 OldWorkflowID=${OldWorkflowID}"
             echo "Run 1 Stacks: ${STACKS[@]}"
       - run:
