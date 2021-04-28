@@ -276,7 +276,7 @@ jobs:
           command: |
             BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
             URL="http://${BUCKET_NAME}.s3-website-us-east-1.amazonaws.com"
-            curl -s ${URL} | grep "Welcome"
+            curl -s ${URL} | grep "Welcomee"
             exit # Exits with the status of the previous command. Grep returns 0 if a match is found, 1 if not.
       # Here's where you will add some code to rollback on failure
       - destroy-environment # on failure
