@@ -8,8 +8,8 @@
     shell:
       chdir: ~/backend
       cmd: |
-        node i
-        node run build
+        npm i
+        npm run build
 
   - name: Start Server
     shell:
