@@ -48,7 +48,7 @@ jobs:
       - checkout
       - run: *default-dependencies
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build2]
       - run:
           name: Build front-end
           command: |
@@ -57,7 +57,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-build2
       - persist_to_workspace:
           root: ~/
           paths:
@@ -90,7 +90,7 @@ jobs:
       - checkout
       - run: *default-dependencies
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build2]
       - run:
           name: Run frontend tests
           command: |
@@ -118,7 +118,7 @@ jobs:
       - checkout
       - run: *default-dependencies
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build2]
       - run:
           name: Run frontend analysis
           command: |
@@ -228,7 +228,7 @@ jobs:
             export API_URL="https://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build2]
       - run:
           name: Deploy frontend objects
           command: |
