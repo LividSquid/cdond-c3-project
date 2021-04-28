@@ -58,6 +58,10 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/frontend
 
   build-backend:
     docker: *default-docker
@@ -75,6 +79,10 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend
 
   test-frontend:
     docker: *default-docker
@@ -190,12 +198,12 @@ jobs:
     steps:
       - checkout
       - run: *default-dependencies
+      - attach_workspace:
+          at: ~/
       - run:
           name: Run migrations
           command: |
             cd backend
-            npm i
-            npm run build
             npm run migrations > output.txt
             cat output.txt
       - run:
@@ -211,6 +219,8 @@ jobs:
     steps:
       - checkout
       - run: *default-dependencies
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
@@ -223,10 +233,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm i
-            npm run build
-            BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
-            aws s3 sync ./dist s3://${BUCKET_NAME} --delete
+            aws s3 sync ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --delete
       # Here's where you will add some code to rollback on failure
       - destroy-environment # on failure
       - revert-migrations # on failure
