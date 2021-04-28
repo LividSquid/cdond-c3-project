@@ -8,10 +8,10 @@
     shell:
       chdir: ~/backend
       cmd: |
-        npm i
-        npm run build
+        node i
+        node run build
 
   - name: Start Server
     shell:
-      chdir: ~/backend
-      cmd: "pm2 start npm -- run start"
+      chdir: ~/backend/dist
+      cmd: pm2 start main.js -f
