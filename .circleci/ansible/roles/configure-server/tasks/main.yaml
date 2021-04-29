@@ -18,6 +18,11 @@
       global: yes
       production: yes
 
+  - name: Configure pm2 to run on startup
+    become: yes
+    shell:
+      cmd: env PATH=$PATH:/usr/bin /usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu
+
   - name: "Configure Environment Variables"
     become: yes
     blockinfile:

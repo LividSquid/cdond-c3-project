@@ -8,3 +8,7 @@
     shell:
       chdir: ~/backend/dist
       cmd: pm2 start main.js -f
+
+  - name: Save pm2 process list
+    shell:
+      cmd: pm2 save
