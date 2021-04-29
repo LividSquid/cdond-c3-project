@@ -41,6 +41,15 @@ commands:
               echo "No migrations to revert. Exiting"
             fi
 
+  alert-sns:
+    description: Send alert via Amazon SNS
+    steps:
+      - run:
+          name: Publish SNS alert
+          when: on_fail
+          command: |
+            aws sns publish --topic-arn $SNS_TOPIC --message "$CIRCLE_JOB has failed. Check it out: $CIRCLE_BUILD_URL"
+
 jobs:
   build-frontend:
     docker: *default-docker
@@ -55,6 +64,7 @@ jobs:
             cd frontend
             npm i
             npm run build
+            exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build2
@@ -62,6 +72,7 @@ jobs:
           root: ~/
           paths:
             - project/frontend
+      - alert-sns
 
   build-backend:
     docker: *default-docker
