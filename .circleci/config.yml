@@ -237,16 +237,17 @@ jobs:
     steps:
       - checkout
       - run: *default-dependencies
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          keys: [frontend-build2]
       - run:
-          name: Get backend url
+          name: Get backend url and bake into frontend
           command: |
             BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7})
             export API_URL="https://${BACKEND_IP}:3030"
             echo "${API_URL}"
-      - restore_cache:
-          keys: [frontend-build2]
+            cd frontend
+            npm i
+            npm run build
       - run:
           name: Deploy frontend objects
           command: |
