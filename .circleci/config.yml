@@ -243,7 +243,7 @@ jobs:
           name: Get backend url and bake into frontend
           command: |
             BACKEND_IP=$(curl -H "token: $MEMSTASH_TOKEN" https://api.memstash.io/values/udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7})
-            export API_URL="https://${BACKEND_IP}:3030"
+            export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             cd frontend
             npm i
